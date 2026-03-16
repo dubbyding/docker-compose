@@ -1,0 +1,31 @@
+
+ # USE COMMAND PROMPT FOR KAFKA
+
+docker exec -it -w /opt/kafka/bin broker sh
+
+ #CREATE TOPIC
+
+./kafka-topics.sh --create --topic <TOPIC> --bootstrap-server broker:29092
+
+# START DOCKER FOR KAFKA
+
+docker-compose -f kafka-docker-compose.yml up -d
+
+#LIST TOPICS
+
+./kafka-topics.sh --list --bootstrap-server broker:29092
+
+
+#DELETE MESSAGES FROM TOPIC
+
+./kafka-topics.sh --delete --topic <TOPIC> --bootstrap-server broker:29092
+
+
+# CONSUME MESSAGE FROM A TOPIC
+
+./kafka-console-consumer.sh --topic beneficiary-bank-account-verification --from-beginning --bootstrap-server broker:29092
+
+# PUBLIS MESSAGE TO A TOPIC
+
+./kafka-console-producer.sh  --topic <TOPIC> --bootstrap-server broker:29092
+
