@@ -1,0 +1,14 @@
+# docker-compose.yml
+services:
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp" # initial setup UI
+      - "3001:80/tcp" # dashboard after setup
+    volumes:
+      - ./adguard/work:/opt/adguardhome/work
+      - ./adguard/conf:/opt/adguardhome/conf
+    restart: unless-stopped
