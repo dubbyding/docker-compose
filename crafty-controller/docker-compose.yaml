@@ -1,17 +1,19 @@
+
 services:
-  crafty:
-    image: registry.gitlab.com/crafty-controller/crafty-4:latest
-    container_name: crafty
-    restart: unless-stopped
-    ports:
-      - "8000:8000" # HTTP (redirects to HTTPS)
-      - "8443:8443" # Main UI
-      - "25565:25565" # Minecraft Java default port
-    environment:
-      - TZ=Asia/Kathmandu
-    volumes:
-      - ./crafty/backups:/crafty/backups
-      - ./crafty/logs:/crafty/logs
-      - ./crafty/servers:/crafty/servers
-      - ./crafty/config:/crafty/config
-      - ./crafty/import:/crafty/import
+    crafty:
+        container_name: crafty_container
+        image: registry.gitlab.com/crafty-controller/crafty-4:latest
+        restart: always
+        environment:
+            - TZ=Etc/UTC
+        ports:
+            - "8443:8443" # HTTPS
+            - "8123:8123" # DYNMAP
+            - "19132:19132/udp" # BEDROCK
+            - "25500-25600:25500-25600" # MC SERV PORT RANGE
+        volumes:
+            - ./docker/backups:/crafty/backups
+            - ./docker/logs:/crafty/logs
+            - ./docker/servers:/crafty/servers
+            - ./docker/config:/crafty/app/config
+            - ./docker/import:/crafty/import
