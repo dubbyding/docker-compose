@@ -1,16 +1,20 @@
+networks:
+  db:
+    external: true
+
 services:
   postgres:
     image: postgres:16
     container_name: postgres_db
     restart: unless-stopped
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - db
 
   pgadmin:
     image: dpage/pgadmin4
@@ -23,6 +27,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin123
     depends_on:
       - postgres
+    networks:
+      - db
 
 volumes:
   pgdata:

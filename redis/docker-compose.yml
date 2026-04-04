@@ -1,3 +1,7 @@
+networks:
+  db:
+    external: true
+
 services:
   redis:
     image: redis:7-alpine
@@ -9,11 +13,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - redis-net
+      - db
 
 volumes:
   redis-data:
-
-networks:
-  redis-net:
-    driver: bridge

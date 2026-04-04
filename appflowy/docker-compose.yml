@@ -1,0 +1,20 @@
+networks:
+  db:
+    external: true
+
+services:
+  appflowy:
+    image: appflowyio/appflowy_server:latest
+    container_name: appflowy
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      RUST_LOG: info
+      DATABASE_URL: postgres://appflowy:appflowy@postgres:5432/appflowy
+      REDIS_URL: redis://localhost:6379
+      ENVIRONMENT: production
+    volumes:
+      - ./data:/app/data
+    networks:
+      - db
