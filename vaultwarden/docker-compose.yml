@@ -1,0 +1,14 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://vault.rajmaharjan.com"
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: "false"
+      ADMIN_TOKEN: "PASTE_YOUR_LONG_RANDOM_TOKEN_HERE"
+    volumes:
+      - ./vw-data:/data
+    ports:
+      - 127.0.0.1:8000:80
