@@ -3,6 +3,8 @@ services:
     image: joplin/server:latest
     container_name: joplin
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "10.0.0.2:22300:22300"
     environment:
@@ -14,6 +16,14 @@ services:
       POSTGRES_DATABASE: joplin
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+      MAILER_ENABLED: 1
+      MAILER_HOST: smtp.gmail.com
+      MAILER_PORT: 587
+      MAILER_SECURITY: starttls
+      MAILER_AUTH_USER: rmaharjan.rm90@gmail.com
+      MAILER_AUTH_PASSWORD: ${MAILER_AUTH_PASSWORD}
+      MAILER_NOREPLY_NAME: Joplin
+      MAILER_NOREPLY_EMAIL: rmaharjan.rm90@gmail.com
     networks:
       - db
       - default
