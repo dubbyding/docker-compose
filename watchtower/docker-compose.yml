@@ -1,0 +1,20 @@
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DOCKER_API_VERSION: "1.44"
+      WATCHTOWER_MONITOR_ONLY: "true"
+      WATCHTOWER_SCHEDULE: "0 0 4 * * *"
+      WATCHTOWER_NOTIFICATIONS: email
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: rmaharjan.rm90@gmail.com
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: rmaharjan.rm90@gmail.com
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: smtp.gmail.com
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: "587"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: rmaharjan.rm90@gmail.com
+      WATCHTOWER_NOTIFICATION_EMAIL_DELAY: "2"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

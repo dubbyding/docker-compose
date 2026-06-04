@@ -2,3 +2,6 @@
 .env
 .env.*
 !.env.example
+DASHBOARD_AUTH.txt
+uptime-kuma/data/
+homepage/config/
