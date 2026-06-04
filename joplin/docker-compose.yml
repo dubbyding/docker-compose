@@ -1,0 +1,23 @@
+services:
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    restart: unless-stopped
+    ports:
+      - "10.0.0.2:22300:22300"
+    environment:
+      APP_BASE_URL: https://joplin.rajmaharjan.com
+      APP_PORT: 22300
+      DB_CLIENT: pg
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: joplin
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    networks:
+      - db
+      - default
+
+networks:
+  db:
+    external: true
