@@ -3,6 +3,22 @@ networks:
     external: true
 
 services:
+  # 1. Helper service to generate the required internal security keyfile
+  mongo-key-generator:
+    image: mongo:8.2.4
+    user: "root"
+    volumes:
+      - mongo_keys:/etc/mongo-key
+    command: >
+      bash -c "
+      if [ ! -f /etc/mongo-key/mongo.key ]; then
+        openssl rand -base64 756 > /etc/mongo-key/mongo.key
+        chmod 400 /etc/mongo-key/mongo.key
+        chown 999:999 /etc/mongo-key/mongo.key
+      fi
+      "
+
+  # 2. Your MongoDB service adjusted to use the keyfile
   mongo:
     image: mongo:8.2.4
     container_name: mongo-db
@@ -14,8 +30,22 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secret123
     volumes:
       - mongo_data:/data/db
+      - mongo_keys:/etc/mongo-key
     networks:
       - db
+    # Wait for the key generator to finish before booting
+    depends_on:
+      mongo-key-generator:
+        condition: service_completed_successfully
+    # Added the --keyFile flag so MongoDB accepts running auth + replica set together
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-key/mongo.key"]
+    healthcheck:
+      test: |
+        mongosh -u admin -p secret123 --eval "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }); }"
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo_data:
+  mongo_keys:
