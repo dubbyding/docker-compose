@@ -1,0 +1,16 @@
+services:
+  joplin-cli:
+    build: .
+    image: joplin-cli:local
+    container_name: joplin-cli
+    restart: unless-stopped
+    # host networking: joplin terminal clipper binds 127.0.0.1 only, so this
+    # makes it reachable at host 127.0.0.1:41184 (localhost-only). bridge +
+    # port-mapping does not work because clipper refuses non-localhost binds.
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      JOPLIN_SERVER_URL: https://joplin.rajmaharjan.com
+    volumes:
+      - ./profile:/profile

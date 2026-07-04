@@ -3,3 +3,4 @@ ADMIN_TOKEN_PLAINTEXT.txt
 *.tar.gz
 *.bak
 migrate.load
+vw-data/

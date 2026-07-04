@@ -1,0 +1,33 @@
+version: '3.8'
+
+networks:
+  db:
+    external: true                  # Joins your existing external database network
+
+services:
+  waha:
+    image: devlikeapro/waha:latest          # Or devlikeapro/waha-plus:latest
+    container_name: waha_engine
+    restart: unless-stopped
+    ports:
+      - "${PORT}:3000"                      # Binds the port specified in your .env
+    environment:
+      - TZ=${TZ}
+      - WHATSAPP_API_KEY=${WHATSAPP_API_KEY}
+      - WAHA_API_KEY=${WHATSAPP_API_KEY}
+      - WAHA_LOG_LEVEL=info
+      - WAHA_PRINT_QR=false
+        # Dashboard & Swagger Credentials
+      - WAHA_DASHBOARD_ENABLED=true
+      - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
+      - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
+      - WHATSAPP_SWAGGER_USERNAME=${WHATSAPP_SWAGGER_USERNAME}
+      - WHATSAPP_SWAGGER_PASSWORD=${WHATSAPP_SWAGGER_PASSWORD}
+      
+      # Database Storage Configuration using .env variables
+      - WAHA_DATA_PROVIDER=MONGODB
+      - MONGODB_URL=mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB_NAME}?authSource=admin
+    volumes:
+      - ./waha_sessions:/app/.sessions
+    networks:
+      - db                                

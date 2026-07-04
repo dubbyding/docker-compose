@@ -1,0 +1,94 @@
+name: firecrawl
+
+networks:
+  db:
+    external: true
+
+x-common-env: &common-env
+  REDIS_URL: redis://:redis_password@redis:6379
+  REDIS_RATE_LIMIT_URL: redis://:redis_password@redis:6379
+  PLAYWRIGHT_MICROSERVICE_URL: http://playwright-service:3000/scrape
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: nuq-postgres
+  POSTGRES_PORT: 5432
+  USE_DB_AUTHENTICATION: "false"
+
+services:
+  playwright-service:
+    image: ghcr.io/firecrawl/playwright-service:latest
+    container_name: firecrawl-playwright
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      MAX_CONCURRENT_PAGES: 10
+    networks:
+      - db
+    cpus: 2.0
+    mem_limit: 4G
+
+  firecrawl-api:
+    image: ghcr.io/firecrawl/firecrawl:latest
+    container_name: firecrawl-api
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      HOST: "0.0.0.0"
+      PORT: 3002
+      EXTRACT_WORKER_PORT: 3004
+      WORKER_PORT: 3005
+      NUQ_RABBITMQ_URL: amqp://rabbitmq:5672
+      ENV: local
+    command: node dist/src/harness.js --start-docker
+    depends_on:
+      playwright-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      nuq-postgres:
+        condition: service_started
+    ports:
+      - "3003:3002"
+    networks:
+      - db
+    cpus: 4.0
+    mem_limit: 8G
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: firecrawl-rabbitmq
+    restart: unless-stopped
+    command: rabbitmq-server
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - db
+
+  nuq-postgres:
+    image: ghcr.io/firecrawl/nuq-postgres:latest
+    container_name: firecrawl-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    networks:
+      - db
+
+  firecrawl-mcp:
+    image: mcp/firecrawl
+    container_name: firecrawl-mcp
+    restart: unless-stopped
+    environment:
+      FIRECRAWL_API_URL: http://firecrawl-api:3002
+    depends_on:
+      - firecrawl-api
+    stdin_open: true
+    tty: true
+    networks:
+      - db
